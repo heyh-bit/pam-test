@@ -7,10 +7,10 @@ on:
     types: [opened, edited, milestoned]
        
 jobs:
-  # demo2: MySQL 内容查询
-  mysql-update:
+  # demo1: OpenSfhit Secret 更新
+  openshift-update:
     runs-on: [self-hosted]
-    name: mysql
+    name: openshift
     steps:
       # step1: 通过 Action, 使用 PAM 查询密码
       - id: step1
@@ -24,11 +24,9 @@ jobs:
           credential: ${{ secrets.PAM_TOKEN }}
       # step2: 通过 env.password 使用查询的密码
       - id: step2
-        name: MySQL 更新
+        name: 修改 openshift 的 secret 值
         run: >
-          docker run registry.cn-hangzhou.aliyuncs.com/hos_test/mysql-client
-          mysql -u root
-          -p${{ env.password }}
-          -h "8.221.143.170"
-          -P 3306
-          -e "show databases;"
+          oc create secret generic hello-world
+          --from-literal=username=hello
+          --from-literal=password=${{ env.password }}
+          --dry-run=client -o yaml -n default | oc replace -f -
